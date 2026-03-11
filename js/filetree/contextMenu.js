@@ -10,6 +10,10 @@ function showContextMenu(path, x, y) {
         const collapseAllDiv = document.createElement('div'); collapseAllDiv.textContent = 'Collapse All'; collapseAllDiv.onclick = () => { collapseAll(); closeContextMenu(); }; menu.appendChild(collapseAllDiv);
         const sortExtDiv = document.createElement('div'); sortExtDiv.textContent = 'Sort by Extension'; sortExtDiv.onclick = () => { sortFolderByExtension(path); closeContextMenu(); }; menu.appendChild(sortExtDiv);
         const downloadFolderDiv = document.createElement('div'); downloadFolderDiv.textContent = 'Download Folder'; downloadFolderDiv.onclick = () => { downloadFolder(path); closeContextMenu(); }; menu.appendChild(downloadFolderDiv);
+        if (path === 'root') {
+            const sep = document.createElement('div'); sep.className = 'context-menu-sep'; menu.appendChild(sep);
+            const renameRootDiv = document.createElement('div'); renameRootDiv.textContent = 'Rename Project'; renameRootDiv.onclick = () => { startRenamingRoot(); closeContextMenu(); }; menu.appendChild(renameRootDiv);
+        }
     }
     if (path !== 'root' && !path.startsWith("untitled://")) {
         const copyPathDiv = document.createElement('div');

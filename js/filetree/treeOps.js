@@ -45,7 +45,7 @@ function createNewFolder(parentPath) {
 }
 
 function startRenaming(path) {
-    if (path === 'root') return;
+    if (path === 'root') { startRenamingRoot(); return; }
     const li = document.querySelector(`li[data-path="${CSS.escape(path)}"]`); if (!li) return;
     const label = li.querySelector('.label'); 
     const nameSpan = label.querySelector('span:not(.icon)'); if (!nameSpan) return;
@@ -141,6 +141,44 @@ async function saveRenaming(oldPath, newName) {
     });
     renderRecentFiles();
     if (settings.autoSaveSession) saveSession();
+}
+
+function startRenamingRoot() {
+    const li = document.querySelector('li[data-path="root"]'); if (!li) return;
+    const label = li.querySelector('.label');
+    const nameSpan = label.querySelector('span:not(.icon)'); if (!nameSpan) return;
+
+    const currentName = fileStructure.root.displayName || 'root';
+    nameSpan.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.className = 'tree-input';
+    label.insertBefore(input, nameSpan.nextSibling);
+
+    let isFinishing = false;
+    const finishRename = (newName) => {
+        if (isFinishing) return;
+        isFinishing = true;
+        if (input.parentNode) input.remove();
+        nameSpan.style.display = '';
+        newName = newName.trim();
+        if (newName && newName !== currentName) {
+            fileStructure.root.displayName = newName;
+            showNotification(`Project renamed to "${newName}".`);
+            if (settings.autoSaveSession) saveSession();
+        }
+        renderFileTree();
+    };
+
+    input.addEventListener('blur', () => finishRename(input.value));
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); finishRename(input.value); }
+        else if (e.key === 'Escape') { e.preventDefault(); finishRename(currentName); }
+    });
+    input.addEventListener('click', (e) => e.stopPropagation());
+    input.focus(); input.select();
 }
 
 function duplicateEntry(path) {

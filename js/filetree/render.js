@@ -32,6 +32,9 @@ function createTreeNode(path) {
             toggleFolder(path); 
             updateStatusBar(); 
         };
+        if (path === 'root') {
+            label.ondblclick = (e) => { e.stopPropagation(); startRenamingRoot(); };
+        }
         
         const ul = document.createElement('ul'); li.appendChild(ul);
         if (entry.expanded) {
