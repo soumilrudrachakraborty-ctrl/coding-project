@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Code Editor</title>
+
+    <!-- CodeMirror Base -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/solarized.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+
+    <!-- CodeMirror Diff / Merge Addon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/merge/merge.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/merge/merge.min.js"></script>
+
+    <!-- CodeMirror Mode Support Addon -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/mode/simple.min.js"></script>
+
+    <!-- CodeMirror Modes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/php/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/yaml/yaml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/shell/shell.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/rust/rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/go/go.min.js"></script>
+
+    <!-- CodeMirror Addons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/scroll/annotatescrollbar.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/indent-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/html-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/javascript-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/css-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/sql-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/comment/comment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/scroll/annotatescrollbar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/search/matchesonscrollbar.min.js"></script>
+
+    <!-- Linting Addon & Linters -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.4/jshint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsonlint/1.6.3/jsonlint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/csslint/1.0.5/csslint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/lint.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/javascript-lint.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/json-lint.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/lint/css-lint.js"></script>
+
+    <!-- Other Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.2/dist/markdown-it.min.js"></script>
+
+    <!-- Prettier for Formatting -->
+    <script src="https://unpkg.com/prettier@2.8.1/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.1/parser-babel.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.1/parser-html.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.1/parser-postcss.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.1/parser-markdown.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.1/parser-yaml.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-actions">
+            <button onclick="newProject()" title="New Project">New Project</button>
+            <input type="file" id="directoryInput" webkitdirectory multiple style="display: none;" onchange="handleDirectoryUpload(event)">
+            <button onclick="document.getElementById('directoryInput').click()" title="Open Directory">Open Directory</button>
+            <button id="downloadBtn" onclick="downloadProject()" title="Download Project as Zip">Download Project</button>
+            <input type="file" id="fileUploadInput" style="display: none;" onchange="handleFileUpload(event)">
+            <button onclick="document.getElementById('fileUploadInput').click()" title="Upload File">Upload File</button>
+        </div>
+
+        <!-- Recent Files Section -->
+        <div class="sidebar-section" id="recentFilesSection">
+            <div class="sidebar-section-header" onclick="toggleRecentFiles()">
+                <span class="sidebar-section-icon" id="recentFilesIcon">▶</span>
+                <span>Recent Files</span>
+            </div>
+            <div class="sidebar-section-body" id="recentFilesBody" style="display: none;">
+                <div id="recentFilesList"></div>
+            </div>
+        </div>
+
+        <!-- File Explorer Section -->
+        <div class="sidebar-section sidebar-section-explorer">
+            <div class="sidebar-section-header" onclick="toggleFileExplorer()">
+                <span class="sidebar-section-icon" id="fileExplorerIcon">▼</span>
+                <span>File Explorer</span>
+            </div>
+            <div class="sidebar-section-body" id="fileExplorerBody">
+                <div class="file-tree" id="fileTree"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="resize-handle" id="resizeHandle"></div>
+
+    <div class="editor-container" id="editorContainer">
+        <div class="tabs" id="tabs"></div>
+        <div class="editor-header">
+            <div class="left-buttons">
+                <button onclick="toggleSidebar()" title="Toggle Sidebar">≡</button>
+                <button onclick="newTab()" title="New Untitled File (Ctrl+N)">New Tab</button>
+                <button onclick="saveCurrentFile()" title="Save Current File (Ctrl+S)">Save</button>
+                <button onclick="downloadCurrentFile()" title="Download Current File">Download</button>
+                <button onclick="formatCode()" title="Format Code (Ctrl+Shift+F)">Format</button>
+                <button onclick="openLocalSearch()" title="Find/Replace in File (Ctrl+F)">Find/Replace</button>
+                <button onclick="openGoToLine()" title="Go to Line/Column (Ctrl+G)">Go to…</button>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Global Search (Ctrl+Shift+G)..." class="header-input">
+                <input type="text" id="replaceInput" placeholder="Replace with..." class="header-input">
+                <button id="globalSearchCaseBtn" onclick="toggleGlobalSearchCase()" title="Match Case" class="header-btn search-toggle-btn">Aa</button>
+                <button onclick="performGlobalReplace()" class="header-btn" title="Replace All Across Project">Replace All</button>
+                <button onclick="clearSearch()" class="header-btn" title="Clear Search">Clear</button>
+            </div>
+
+            <div class="right-buttons">
+                <button id="diffBtn" onclick="toggleDiff()" title="View Unsaved Changes vs Last Save">Diff</button>
+                <button id="previewBtn" onclick="togglePreview()" title="Toggle Preview for HTML/Markdown">Preview</button>
+                <button onclick="toggleSettings()" title="Editor Settings">Settings</button>
+            </div>
+        </div>
+        
+        <div class="editor-split" id="editorSplit">
+            <div class="editor-pane" id="editorPane">
+                
+                <!-- Floating Local Search Widget -->
+                <div id="localSearchWidget" class="local-search-widget" style="display: none;">
+                    <div class="search-row">
+                        <input type="text" id="localSearchInput" placeholder="Find in file...">
+                        <span id="localSearchCount">0/0</span>
+                        <button id="localSearchCaseBtn" onclick="toggleLocalSearchCase()" title="Match Case (Alt+C)" class="search-toggle-btn">Aa</button>
+                        <button onclick="findNextLocal()" title="Next (Enter)">↓</button>
+                        <button onclick="findPrevLocal()" title="Previous (Shift+Enter)">↑</button>
+                        <button onclick="toggleLocalReplace()" title="Toggle Replace (Ctrl+H)">🔁</button>
+                        <button onclick="closeLocalSearch()" title="Close (Esc)">×</button>
+                    </div>
+                    <div class="replace-row" id="localReplaceRow" style="display: none;">
+                        <input type="text" id="localReplaceInput" placeholder="Replace with...">
+                        <button onclick="replaceLocal()" title="Replace (Enter)">Replace</button>
+                        <button onclick="replaceAllLocal()" title="Replace All">All</button>
+                    </div>
+                </div>
+
+                <div id="codeEditor"></div>
+                <div id="diffContainer" style="display: none; height: 100%; flex-direction: column;"></div>
+            </div>
+            <div class="resize-handle-vertical" id="editorPreviewResizeHandle"></div>
+            <div class="preview-pane" id="previewPane">
+                <iframe id="previewFrame" sandbox="allow-scripts" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </div>
+        
+        <div id="searchResults"></div>
+        
+        <div class="status-bar" id="statusBar">
+            <span class="notification" id="notification"></span>
+            <span id="statusContent"></span>
+        </div>
+        
+        <!-- Settings Modal -->
+        <div id="settingsOverlay" class="modal-overlay" style="display: none;" onclick="handleSettingsOverlayClick(event)">
+            <div class="modal-box settings-modal-box" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <span class="modal-close-x" onclick="toggleSettings()" title="Close">&times;</span>
+                </div>
+                <div class="modal-body settings-modal-body">
+                    <div class="settings-section">
+                        <div class="settings-section-title">Editor</div>
+                        <label class="settings-label"><input type="checkbox" id="autoCloseTags" checked> Auto-Close Tags</label>
+                        <label class="settings-label"><input type="checkbox" id="matchBrackets" checked> Match Brackets</label>
+                        <label class="settings-label"><input type="checkbox" id="autoCloseBrackets" checked> Auto-Close Brackets</label>
+                        <label class="settings-label"><input type="checkbox" id="wordWrap"> Word Wrap</label>
+                        <label class="settings-label"><input type="checkbox" id="fileTemplates" checked> File Templates on New File</label>
+                    </div>
+                    <div class="settings-section">
+                        <div class="settings-section-title">Session</div>
+                        <label class="settings-label"><input type="checkbox" id="autoSaveSession"> Auto-Save/Load Session</label>
+                        <label class="settings-label"><input type="checkbox" id="autoSaveOnBlur"> Auto-Save on Focus Loss</label>
+                    </div>
+                    <div class="settings-section">
+                        <div class="settings-section-title">Appearance</div>
+                        <label class="settings-label settings-label-row">
+                            <span>Theme</span>
+                            <select id="themeSelect">
+                                <option value="default">Light</option>
+                                <option value="monokai" selected>Dark (Monokai)</option>
+                                <option value="solarized dark">Solarized Dark</option>
+                                <option value="solarized light">Solarized Light</option>
+                                <option value="dracula">Dracula</option>
+                            </select>
+                        </label>
+                        <label class="settings-label settings-label-row">
+                            <span>Tab Width</span>
+                            <select id="tabWidthSelect">
+                                <option value="2">2 spaces</option>
+                                <option value="4" selected>4 spaces</option>
+                                <option value="8">8 spaces</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn-cancel" onclick="resetSettings()">Reset to Default</button>
+                    <button class="modal-btn-primary" onclick="toggleSettings()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Palette -->
+    <div id="commandPalette" class="modal-overlay" style="display: none;">
+        <div class="palette-box">
+            <input type="text" id="paletteInput" placeholder="Search commands... (e.g., Format, Search, Save)">
+            <ul id="paletteList"></ul>
+        </div>
+    </div>
+
+    <!-- Custom Scripts -->
+    <!-- Submodules -->
+	<script src="js/filetree/render.js"></script>
+	<script src="js/filetree/treeOps.js"></script>
+	<script src="js/filetree/contextMenu.js"></script>
+	<script src="js/filetree/dragDrop.js"></script>
+    <script src="js/globals.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/fileTree.js"></script>
+    <script src="js/tabs.js"></script>
+    <script src="js/fileOps.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

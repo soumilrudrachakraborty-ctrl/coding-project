@@ -1,0 +1,2 @@
+You cannot drag a file out of a folder--dragging it to someplace else just moves the folder along with the file. [Fixed in v0.2.6.6]
+Minor status message bug related to dragdrop functionality [Fixed in v0.2.6.6.1]

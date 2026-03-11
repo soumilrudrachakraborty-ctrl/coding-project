@@ -1,0 +1,26 @@
+# <u>Changes in v0.2.6</u>
+## <u>Bugfixes</u>
+* **Stale recent files after rename** — `saveRenaming` now remaps all `recentFiles` entries whose paths matched the old file or folder path (including children of renamed folders)
+* **Global replace "Searching…" flash** — search results div is cleared to `'Searching...'` *before* dispatching to the worker, replacing stale results cleanly instead of flashing old content
+* **`closeLocalSearch` crash when editor not ready** — `codeEditor.focus()` is now guarded with `if (codeEditor)` to prevent a throw if the shortcut fires before initialisation
+* **Deleted files remain in recent files panel** — `deleteEntry` now prunes `recentFiles` of any entries whose path starts with the deleted path, and re-renders the panel
+* **`openGoToLine` crash on Escape/backdrop dismiss** — `.then()` callback now receives the full result object and guards against `null` before destructuring, preventing an uncaught TypeError
+* **HTML syntax highlighting broken** — the `htmlmixed` CodeMirror mode script was missing from `index.html`; `xml.js`, `javascript.js`, and `css.js` are prerequisites but do not themselves register `htmlmixed`. The mode script is now loaded immediately after its dependencies in the correct order
+* **No unsaved asterisk on md files** -- `change` handler used a broken allow list for user origins; now it uses a denylist instead.
+* **Drag and drop for files within the tree broken** -- fixed; dragging and dropping files should now avoid visual 'stutter' and it now has clarity. Files no longer 'stuck' in folders.
+## <u>Improvements</u>
+* **Case-sensitive global search** — added an **Aa** toggle button next to the global search bar (matches the local search widget behaviour); flag is respected by the search worker, the result highlighter, and global Replace All
+* **Debounced file tree re-render on background tab close** — closing a tab that is not the active file now uses a debounced render (80 ms) instead of an immediate full tree rebuild, reducing redundant DOM churn when closing many tabs in sequence
+* **Tab Width setting** — Settings modal now includes a Tab Width selector (2 / 4 / 8 spaces) under Appearance; changing it immediately updates the editor indent and `tabSize`; `applySettings` also calls `updateStatusBar()` so the status bar refreshes after any settings change
+* **Tab scroll and cursor position restored on switch** — when switching back to an already-open tab the editor restores the exact scroll position and cursor location from when the tab was last active, so you no longer lose your place
+* **Refactored fileTree.js** -- fileTree.js is now refactored into smaller subcomponents in js/tree. References are added to index.html.
+## <u>Additions</u>
+* **File templates on new file** — creating a new file via the tree input auto-populates language-appropriate boilerplate (HTML doctype, JSON braces, shell shebang, Rust/Go/C/Java stubs, Vue/Svelte scaffolding, etc.) for 25+ extensions; controlled by a new **File Templates on New File** toggle in Settings → Editor (default on)
+* **Duplicate file** — file tree context menu now includes a **Duplicate** option for files; creates `filename_copy.ext` (or `filename_copy2.ext`, etc.) in the same folder, opens the duplicate, and marks it unsaved
+* **Save All** (`Ctrl+Shift+S`) — saves every open non-untitled tab that has unsaved changes in one action; available via keyboard shortcut, the **Save All** entry in the tab right-click context menu, and the command palette
+* **Reveal in Tree** — tab right-click context menu includes **Reveal in Tree** for non-untitled files; expands the File Explorer sidebar section if collapsed, expands all ancestor folders, re-renders the tree, and scrolls the entry into view
+* **Word count in status bar** — when editing a Markdown or plain-text file the status bar shows a live word count (e.g. `| 312 words`) between the line/column segment and the byte size
+* **Drag-and-drop in file tree** — any file or folder (except root) can be dragged onto another node; dropping onto a folder moves the entry into that folder; dropping onto a sibling within the same folder reorders it to that position; cross-folder moves update all open tabs, recent files, and current working directory; the dragged node dims and the drop target highlights in accent colour
+* **Sort by Extension** — folder context menu and bare-tree background context menu include **Sort by Extension**, which re-orders that folder's children with folders first, then files grouped by extension alphabetically, then by name within each group; also available in the command palette as "Sort Root by Extension"
+* **Expand All** — mirrors **Collapse All**; recursively expands every folder in the tree; available in the folder context menu, bare-tree background context menu, and command palette
+* **Bare-tree background context menu** — right-clicking the file tree panel outside any file or folder node opens a lightweight context menu with New File, New Folder, Expand All, Collapse All, and Sort by Extension
