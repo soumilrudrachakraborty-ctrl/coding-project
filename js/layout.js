@@ -1,0 +1,276 @@
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const handle = document.getElementById('resizeHandle');
+    sidebar.classList.toggle('sidebar-hidden');
+    handle.style.display = sidebar.classList.contains('sidebar-hidden') ? 'none' : 'block';
+    setTimeout(() => { if (codeEditor) codeEditor.refresh() }, 300);
+}
+
+function initSidebarResize() {
+    const sidebar = document.getElementById('sidebar');
+    const resizeHandle = document.getElementById('resizeHandle');
+    const editorContainer = document.getElementById('editorContainer');
+    const minSidebarWidth = 150;
+    sidebar.style.width = settings.sidebarWidth || defaultSettings.sidebarWidth;
+    let isResizing = false, startX, startWidth;
+
+    const startResize = (clientX) => {
+        if (sidebar.classList.contains('sidebar-hidden')) return;
+        isResizing = true; startX = clientX; startWidth = sidebar.offsetWidth;
+        document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchmove', handleTouchMove); document.addEventListener('touchend', handleMouseUp);
+    };
+
+    resizeHandle.addEventListener('mousedown', (e) => startResize(e.clientX));
+    resizeHandle.addEventListener('touchstart', (e) => startResize(e.touches[0].clientX));
+
+    function moveAction(clientX) {
+        if (!isResizing) return;
+        const maxSidebarWidth = window.innerWidth - editorContainer.offsetWidth + startWidth - 50;
+        let newWidth = startWidth + (clientX - startX);
+        newWidth = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
+        sidebar.style.width = `${newWidth}px`;
+        requestAnimationFrame(() => codeEditor.refresh());
+    }
+
+    function handleMouseMove(e) { moveAction(e.clientX); }
+    function handleTouchMove(e) { moveAction(e.touches[0].clientX); }
+
+    function handleMouseUp() {
+        if (isResizing) {
+            isResizing = false; document.body.style.cursor = ''; document.body.style.userSelect = '';
+            updateAndSaveSetting('sidebarWidth', sidebar.style.width);
+            document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove); document.removeEventListener('touchend', handleMouseUp);
+            codeEditor.refresh();
+        }
+    }
+    resizeHandle.style.display = sidebar.classList.contains('sidebar-hidden') ? 'none' : 'block';
+}
+
+function initEditorPreviewResize() {
+    const editorPane = document.getElementById('editorPane');
+    const previewPane = document.getElementById('previewPane');
+    const resizeHandle = document.getElementById('editorPreviewResizeHandle');
+    const editorSplit = document.getElementById('editorSplit');
+    const minPaneWidth = 50;
+    editorPane.style.flexBasis = settings.editorPaneFlexBasis || defaultSettings.editorPaneFlexBasis;
+    previewPane.style.flexBasis = settings.previewPaneFlexBasis || defaultSettings.previewPaneFlexBasis;
+    let isResizing = false, startX, startEditorWidth, startPreviewWidth;
+
+    const startResize = (clientX) => {
+        if (previewPane.style.display === 'none') return;
+        isResizing = true; startX = clientX; startEditorWidth = editorPane.offsetWidth; startPreviewWidth = previewPane.offsetWidth;
+        document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchmove', handleTouchMove); document.addEventListener('touchend', handleMouseUp);
+    }
+
+    resizeHandle.addEventListener('mousedown', (e) => startResize(e.clientX));
+    resizeHandle.addEventListener('touchstart', (e) => startResize(e.touches[0].clientX));
+
+    function moveAction(clientX) {
+        if (!isResizing) return;
+        let delta = clientX - startX; let newEditorWidth = startEditorWidth + delta; let newPreviewWidth = startPreviewWidth - delta;
+        const totalWidth = editorSplit.offsetWidth - resizeHandle.offsetWidth;
+        if (newEditorWidth < minPaneWidth) { newEditorWidth = minPaneWidth; newPreviewWidth = totalWidth - newEditorWidth; }
+        else if (newPreviewWidth < minPaneWidth) { newPreviewWidth = minPaneWidth; newEditorWidth = totalWidth - newPreviewWidth; }
+        editorPane.style.flexBasis = `${newEditorWidth}px`; previewPane.style.flexBasis = `${newPreviewWidth}px`;
+        requestAnimationFrame(() => codeEditor.refresh());
+    }
+
+    function handleMouseMove(e) { moveAction(e.clientX); }
+    function handleTouchMove(e) { moveAction(e.touches[0].clientX); }
+
+    function handleMouseUp() {
+        if (isResizing) {
+            isResizing = false; document.body.style.cursor = ''; document.body.style.userSelect = '';
+            const totalWidth = editorSplit.offsetWidth - resizeHandle.offsetWidth;
+            if (totalWidth > 0) {
+                settings.editorPaneFlexBasis = `${(editorPane.offsetWidth / totalWidth) * 100}%`;
+                settings.previewPaneFlexBasis = `${(previewPane.offsetWidth / totalWidth) * 100}%`;
+                saveSettings();
+            }
+            document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove); document.removeEventListener('touchend', handleMouseUp);
+            codeEditor.refresh();
+        }
+    }
+}
+
+function togglePreview() {
+    if (!currentFilePath || currentFilePath.startsWith("untitled://") || (!currentFilePath.toLowerCase().endsWith('.html') && !currentFilePath.toLowerCase().endsWith('.md'))) {
+        showNotification("Preview only available for HTML and Markdown files.", true);
+        if (isPreviewEnabled) { isPreviewEnabled = false; updatePreviewLayout(); codeEditor.off('change', updatePreview); }
+        return;
+    }
+    isPreviewEnabled = !isPreviewEnabled;
+    updatePreviewLayout();
+    if (isPreviewEnabled) { updatePreview(); codeEditor.on('change', updatePreview); }
+    else { codeEditor.off('change', updatePreview); }
+    setTimeout(() => codeEditor.refresh(), 100);
+}
+
+function updatePreviewLayout() {
+    if (!codeEditor) return;
+    const editorPane = document.getElementById('editorPane');
+    const previewPane = document.getElementById('previewPane');
+    const resizeHandle = document.getElementById('editorPreviewResizeHandle');
+    const previewBtn = document.getElementById('previewBtn');
+    const canPreview = currentFilePath && !currentFilePath.startsWith("untitled://") && (currentFilePath.toLowerCase().endsWith('.html') || currentFilePath.toLowerCase().endsWith('.md'));
+
+    if (isPreviewEnabled && canPreview) {
+        editorPane.style.flexBasis = settings.editorPaneFlexBasis || defaultSettings.editorPaneFlexBasis;
+        previewPane.style.flexBasis = settings.previewPaneFlexBasis || defaultSettings.previewPaneFlexBasis;
+        previewPane.style.display = 'block';
+        resizeHandle.style.display = 'block';
+        if (previewBtn) previewBtn.classList.add('active');
+    } else {
+        editorPane.style.flexBasis = '100%';
+        previewPane.style.display = 'none';
+        resizeHandle.style.display = 'none';
+        if (previewBtn) previewBtn.classList.remove('active');
+        if(isPreviewEnabled && !canPreview) { isPreviewEnabled = false; codeEditor.off('change', updatePreview); }
+    }
+    codeEditor.refresh();
+}
+
+function updatePreview() {
+    if (!currentFilePath || currentFilePath.startsWith("untitled://")) return;
+    const content = codeEditor.getValue(); 
+    const iframe = document.getElementById('previewFrame');
+    
+    if (currentFilePath.toLowerCase().endsWith('.md')) {
+        const md = getMarkdownInstance();
+        if (!md) { showNotification("Markdown library not loaded.", true); return; }
+        
+        const htmlContent = md.render(content);
+        
+        const styledHtml = `
+        <style> 
+            body { 
+                font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif); 
+                color: #d0d0d0; 
+                background: #2a2a2e; 
+                padding: 15px; 
+                line-height: 1.6;
+            } 
+            hr { border-color: #555; } 
+            .table-wrapper { width: 100%; overflow-x: auto; margin-bottom: 1.5em; }
+            table { border-collapse: collapse; width: 100%; } 
+            table, th, td { border: 1px solid #555; } 
+            th, td { padding: 8px 12px; text-align: left; } 
+            thead th { background-color: #3c3c3c; font-weight: 600; } 
+            tr:nth-child(even) { background-color: #333; }
+            blockquote { 
+                border-left: 4px solid #007acc; padding-left: 15px; margin-left: 0; 
+                color: #b0b0b0; font-style: italic; background: rgba(0, 122, 204, 0.1);
+                padding: 10px 15px; border-radius: 0 4px 4px 0;
+            } 
+            pre { background: #1e1e1e; padding: 12px; border-radius: 6px; overflow-x: auto; } 
+            code { font-family: 'Fira Code', 'Consolas', monospace; background: #1e1e1e; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; } 
+            pre > code { padding: 0; background: none; font-size: 0.9em; } 
+            a { color: #61afef; text-decoration: none; } 
+            a:hover { color: #82c9ff; text-decoration: underline; } 
+            img { max-width: 100%; height: auto; border-radius: 4px; } 
+        </style> 
+        ${htmlContent}
+        <script>
+            document.querySelectorAll('table').forEach(table => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-wrapper';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            });
+        <\/script>
+        `;
+        
+        iframe.srcdoc = styledHtml;
+    } else if (currentFilePath.toLowerCase().endsWith('.html')) {
+        iframe.srcdoc = content;
+    }
+}
+
+function collapseAll() {
+    function collapseRecursive(path) {
+        const entry = fileStructure[path];
+        if (!entry || entry.type !== 'folder') return;
+        if (path !== 'root') entry.expanded = false;
+        entry.children.forEach(child => collapseRecursive(`${path}/${child}`));
+    }
+    collapseRecursive('root');
+    renderFileTree();
+}
+
+function toggleDiff() {
+    if (!currentFilePath || !fileStructure[currentFilePath] || fileStructure[currentFilePath].type !== 'file') return;
+    if (typeof CodeMirror.MergeView === 'undefined') { showNotification("Diff tool library not loaded.", true); return; }
+
+    const diffBtn = document.getElementById('diffBtn');
+    const diffContainer = document.getElementById('diffContainer');
+    const editorWrapper = codeEditor.getWrapperElement();
+    const localSearchWidget = document.getElementById('localSearchWidget');
+
+    if (isDiffEnabled) {
+        // TURN OFF DIFF MODE
+        isDiffEnabled = false;
+        if (diffBtn) diffBtn.classList.remove('active');
+        
+        diffContainer.style.display = 'none';
+        diffContainer.innerHTML = '';
+        diffView = null;
+        
+        editorWrapper.style.display = 'block';
+        codeEditor.refresh();
+        codeEditor.focus();
+    } else {
+        // TURN ON DIFF MODE
+        isDiffEnabled = true;
+        if (diffBtn) diffBtn.classList.add('active');
+        
+        if (localSearchWidget.style.display !== 'none') closeLocalSearch();
+
+        editorWrapper.style.display = 'none';
+        diffContainer.style.display = 'flex';
+        
+        const entry = fileStructure[currentFilePath];
+        const origContent = entry.savedContent !== undefined ? entry.savedContent : '';
+        const modifiedContent = codeEditor.getValue();
+        const currentMode = codeEditor.getOption('mode');
+
+        diffContainer.innerHTML = `
+            <div class="diff-header">
+                <div class="diff-title">Original (Saved)</div>
+                <div class="diff-title">Current Changes</div>
+            </div>
+            <div id="mergeViewTarget"></div>
+        `;
+        
+        const target = document.getElementById('mergeViewTarget');
+
+        diffView = CodeMirror.MergeView(target, {
+            value: modifiedContent,
+            origLeft: origContent,
+            lineNumbers: true,
+            mode: currentMode,
+            theme: settings.theme,
+            revertButtons: true, // Arrows click to revert chunk from saved -> modified
+            connect: 'align',
+            collapseIdentical: false,
+            allowEditingOriginals: false,
+            tabSize: settings.tabWidth,
+            indentUnit: settings.tabWidth,
+            lineWrapping: settings.wordWrap,
+            viewportMargin: Infinity
+        });
+
+        // Sync edits from the right side of the diff viewer back to the main file state
+        diffView.editor().on('change', () => {
+            const newVal = diffView.editor().getValue();
+            if (codeEditor.getValue() !== newVal) {
+                codeEditor.setValue(newVal); 
+            }
+        });
+    }
+}
