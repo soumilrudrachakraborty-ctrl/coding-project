@@ -7,6 +7,7 @@ CodeEdit is a fully open-source, portable, persistent, and lightweight code edit
 *   **Open Directory**: Use the **Open Directory** button to load an entire folder structure into the editor. Your browser will keep these files in its local storage database.
 *   **File Explorer**: The collapsible **File Explorer** panel on the left lets you navigate your project.
     *   **Right-click** any file or folder to access context menus for Renaming, Deleting, Creating new sub-items, Copying the path, and downloading a folder as a ZIP.
+    *   **Root**: Right-click the `root` folder to rename the project.
     *   **Drag and Drop**: You can drag files or folders directly into the Sidebar to import them into your workspace.
 *   **Recent Files**: A collapsible **Recent Files** panel above the File Explorer tracks the last 20 files you opened. Click any entry to reopen it; click `×` to remove it from the list. Recent files are persisted across sessions.
 *   **Downloading**: Click **Download Project** to zip your current workspace and save it to your computer. Right-click any folder in the tree and choose **Download Folder** to zip just that subtree. (Be careful since Windows' aggressive protection might block the unzip — right-click the zip, click Properties, then click 'Unblock'.)
@@ -25,11 +26,13 @@ CodeEdit is a fully open-source, portable, persistent, and lightweight code edit
 *   **Formatting**: Use the "Format" button or `Ctrl+Shift+F` to automatically clean up your code structure using Prettier.
 *   **Diff Viewer**: Click the **Diff** button to open a side-by-side view of your unsaved changes vs. the last saved state. Edits made in the right (modified) pane are reflected back in the main editor.
 *   **Auto-Save on Focus Loss**: Enable **Auto-Save on Focus Loss** in Settings to automatically save the active file whenever you switch to another application or browser tab.
+*   **Copy file to Clipboard**: This button, available by clicking the three dots, copies the contents of the current file to the clipboard
+
 
 ## 🚀 Command Palette
 Can't remember a shortcut? 
 *   **Open**: Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac).
-*   **Usage**: Type to filter through available commands (e.g., "save," "new," "format," "goto"). Use arrow keys to navigate and `Enter` to execute.
+*   **Usage**: Type to filter through available commands (e.g., "save," "new," "format," "goto"). Use arrow keys to navigate and `Enter` to execute. Press `esc` to close the palette.
 
 ## 👁️ Preview Mode
 Click the **Preview** button to enable the split-pane view. 
