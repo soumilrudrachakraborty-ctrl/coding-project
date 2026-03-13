@@ -1,2 +1,3 @@
 CWD is slightly broken and doesn't update properly.
 Not exactly a bug but the command palette looks a bit dated and the window is small. Could be updated and enlargened a bit.
+Minor bug: "Done — 0 item(s) dropped." status message when dragdropping an item within the explorer.
