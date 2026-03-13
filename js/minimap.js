@@ -3,7 +3,7 @@
 (function () {
     const LINE_H = 2;      // canvas px per doc line
     const CHAR_W = 1.4;    // canvas px per character
-    const WIDTH  = 82;     // must match .minimap-wrap width in CSS
+    const WIDTH  = 84;     // must match .minimap-wrap width in CSS
     const PAD    = 3;
 
     const C = {
@@ -33,7 +33,10 @@
         if (!codeEditor || !canvas || !ctx) return;
 
         const totalLines = codeEditor.lineCount();
-        const canH = Math.max(totalLines * LINE_H, 1);
+        // Canvas must be at least as tall as the wrap so clicks always land on
+        // the canvas and the band is always a meaningful sub-region of the view.
+        const wrapH = wrap.clientHeight || 1;
+        const canH  = Math.max(totalLines * LINE_H, wrapH);
 
         if (canvas.width !== WIDTH || canvas.height !== canH) {
             canvas.width  = WIDTH;
@@ -86,8 +89,7 @@
         ctx.strokeRect(0.5, bandTop + 0.5, WIDTH - 1, bandH - 1);
 
         // Slide canvas so band stays visible inside the wrap
-        const wrapH = wrap.clientHeight;
-        if (canH > wrapH && wrapH > 0) {
+        if (canH > wrapH) {
             let offset = bandTop + bandH / 2 - wrapH / 2;
             offset = Math.max(0, Math.min(offset, canH - wrapH));
             canvas.style.transform = `translateY(${-offset}px)`;
@@ -136,8 +138,11 @@
         console.log('[Minimap] wrap dimensions:', wrap.clientWidth, 'x', wrap.clientHeight,
                     '— waiting for first file open');
 
+        // Listen on the wrap (not just the canvas) so clicks on any part of the
+        // minimap panel register — the canvas may not fill the full wrap height
+        // for very short files.
         let dragging = false;
-        canvas.addEventListener('mousedown', e => { e.preventDefault(); dragging = true; jumpTo(e.clientY); });
+        wrap.addEventListener('mousedown', e => { e.preventDefault(); dragging = true; jumpTo(e.clientY); });
         window.addEventListener('mousemove', e => { if (dragging) jumpTo(e.clientY); });
         window.addEventListener('mouseup',   () => { dragging = false; });
 
