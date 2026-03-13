@@ -22,11 +22,13 @@ CodeEdit is a fully open-source, portable, persistent, and lightweight code edit
     *   Click the **Aa** button (or press `Alt+C` while the widget is open) to toggle **case-sensitive** matching.
     *   Search matches are annotated as yellow tick marks on the scrollbar so you can see their distribution across the whole file at a glance.
 *   **Global Search & Replace**: Use the top header input fields to search across **every file in your project**. Click "Replace All" to perform a project-wide search and replace.
+*   **Breadcrumb**: Beneath the tabs is the filepath to the current file. Click file name to copy path to clipboard.
 *   **Go to Line / Column**: Press `Ctrl+G` (or click the `Ln/Col` indicator in the status bar, or use the **Go to…** button) to jump to a specific line. Enter just a line number (e.g. `42`) or a `line:column` pair (e.g. `42:10`).
 *   **Formatting**: Use the "Format" button or `Ctrl+Shift+F` to automatically clean up your code structure using Prettier.
 *   **Diff Viewer**: Click the **Diff** button to open a side-by-side view of your unsaved changes vs. the last saved state. Edits made in the right (modified) pane are reflected back in the main editor.
 *   **Auto-Save on Focus Loss**: Enable **Auto-Save on Focus Loss** in Settings to automatically save the active file whenever you switch to another application or browser tab.
 *   **Copy file to Clipboard**: This button, available by clicking the three dots, copies the contents of the current file to the clipboard
+*   **Minimap**: There is a functioning minimap to the right side of the editor. Click a location to automatically scroll there or drag the band.
 
 
 ## 🚀 Command Palette
