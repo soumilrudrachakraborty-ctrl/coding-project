@@ -37,11 +37,11 @@ Click the **Preview** button to enable the split-pane view.
 *   **HTML**: Renders the raw HTML content in real-time. (No support yet for loading CSS/JS in other linked files)
 *   **LaTeX**: LaTeX document rendering will be added in the latest version (still testing)
 
-## 🛠️ Managing Versions (Workspace Isolation)
-Because CodeEdit persists your work in your browser's database, you may want to separate your "Working" version from your "Stable" version (assuming you're editing it).
+## 🛠️ Workspace Isolation
+Because CodeEdit persists your work in your browser's database, you may want to separate different instances/projects. To do this:
 1.  Open `js/globals.js`.
-2.  Update the `VERSION` constant (e.g., `"0.2.3"`).
-3.  The editor will treat this as a completely separate workspace, ensuring your files, tabs, and session state are isolated from other versions.
+2.  Update the `VERSION` constant (e.g., `"0.2.3"` or any other valid string. Note that the title of the page will be appended with v[VERSION]; this behavior can be changed by modifying line 17 of `main.js`).
+3.  The editor will treat this as a completely separate workspace, ensuring your files, tabs, and session state are isolated from instances with other `VERSION` constants.
 
 ## ⌨️ Keyboard Shortcuts Reference
 
