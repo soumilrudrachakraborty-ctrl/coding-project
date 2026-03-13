@@ -1,1 +1,1 @@
-CWD status is slightly broken -- doesn't update properly. Specifically the error is that the CWS shows the folder path the user was previously inside when opening a file directly under the root. It only updates again if the user goes to a non-root file.
+CWD is slightly broken and doesn't update properly.
