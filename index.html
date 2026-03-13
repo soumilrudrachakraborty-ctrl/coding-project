@@ -128,6 +128,7 @@
 
     <div class="editor-container" id="editorContainer">
         <div class="tabs" id="tabs"></div>
+        <div class="breadcrumb-bar" id="breadcrumbBar"><span class="breadcrumb-empty">No file open</span></div>
         <div class="editor-header">
             <div class="left-buttons">
                 <button onclick="toggleSidebar()" title="Toggle Sidebar">≡</button>
@@ -139,6 +140,7 @@
                     <div class="toolbar-overflow-menu" id="toolbarOverflowMenu">
                         <div onclick="downloadCurrentFile(); closeToolbarMenu()">Download File</div>
                         <div onclick="formatCode(); closeToolbarMenu()">Format Code <span class="toolbar-menu-shortcut">Ctrl+Shift+F</span></div>
+                        <div onclick="toggleWordWrap(); closeToolbarMenu()" id="wrapToggleMenuItem">Word Wrap <span class="toolbar-menu-shortcut" id="wrapToggleShortcut"></span></div>
                         <div onclick="openGoToLine(); closeToolbarMenu()">Go to Line… <span class="toolbar-menu-shortcut">Ctrl+G</span></div>
                         <div onclick="copyEditorContent(); closeToolbarMenu()">Copy Contents</div>
                         <div class="context-menu-sep"></div>
@@ -159,7 +161,7 @@
 
             <div class="right-buttons">
                 <button id="diffBtn" onclick="toggleDiff()" title="View Unsaved Changes vs Last Save">Diff</button>
-                <button id="previewBtn" onclick="togglePreview()" title="Toggle Preview for HTML, Markdown, or LaTeX">Preview</button>
+                <button id="previewBtn" onclick="togglePreview()" title="Toggle Preview for HTML/Markdown">Preview</button>
                 <button onclick="toggleSettings()" title="Editor Settings">Settings</button>
             </div>
         </div>
@@ -188,6 +190,7 @@
                 <div id="codeEditor"></div>
                 <div id="diffContainer" style="display: none; height: 100%; flex-direction: column;"></div>
             </div>
+            <div id="minimapWrap" class="minimap-wrap"></div>
             <div class="resize-handle-vertical" id="editorPreviewResizeHandle"></div>
             <div class="preview-pane" id="previewPane">
                 <iframe id="previewFrame" sandbox="allow-scripts" style="width: 100%; height: 100%; border: none;"></iframe>
@@ -214,6 +217,7 @@
                         <label class="settings-label"><input type="checkbox" id="autoCloseTags" checked> Auto-Close Tags</label>
                         <label class="settings-label"><input type="checkbox" id="matchBrackets" checked> Match Brackets</label>
                         <label class="settings-label"><input type="checkbox" id="autoCloseBrackets" checked> Auto-Close Brackets</label>
+                        <label class="settings-label"><input type="checkbox" id="bracketColorization" checked> Bracket Pair Colorization</label>
                         <label class="settings-label"><input type="checkbox" id="wordWrap"> Word Wrap</label>
                         <label class="settings-label"><input type="checkbox" id="fileTemplates" checked> File Templates on New File</label>
                     </div>
@@ -221,6 +225,11 @@
                         <div class="settings-section-title">Session</div>
                         <label class="settings-label"><input type="checkbox" id="autoSaveSession"> Auto-Save/Load Session</label>
                         <label class="settings-label"><input type="checkbox" id="autoSaveOnBlur"> Auto-Save on Focus Loss</label>
+                        <label class="settings-label"><input type="checkbox" id="autoSaveInterval"> Timed Auto-Save</label>
+                        <label class="settings-label settings-label-row" id="autoSaveIntervalMsRow">
+                            <span>Save interval (seconds)</span>
+                            <input type="number" id="autoSaveIntervalMs" min="5" max="3600" value="30" class="settings-number-input">
+                        </label>
                     </div>
                     <div class="settings-section">
                         <div class="settings-section-title">Appearance</div>
@@ -277,6 +286,7 @@
     <script src="js/formatLatex.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/session.js"></script>
+    <script src="js/minimap.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
