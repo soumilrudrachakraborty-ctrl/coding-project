@@ -142,7 +142,10 @@
     <div class="resize-handle" id="resizeHandle"></div>
 
     <div class="editor-container" id="editorContainer">
-        <div class="tabs" id="tabs"></div>
+        <div class="tabs-wrap">
+            <div class="tabs" id="tabs"></div>
+            <button class="new-tab-btn" onclick="newTab()" title="New Tab">+</button>
+        </div>
         <div class="breadcrumb-bar" id="breadcrumbBar"><span class="breadcrumb-empty">No file open</span></div>
         <div class="editor-header">
             <div class="left-buttons">
@@ -202,8 +205,8 @@
                     </div>
                 </div>
 
-                <div id="codeEditor"></div>
-                <div id="diffContainer" style="display: none; height: 100%; flex-direction: column;"></div>
+                <div id="codeEditor" style="flex: 1; min-height: 0;"></div>
+                <div id="diffContainer" style="display: none; flex: 1; min-height: 0; flex-direction: column;"></div>
             </div>
             <div id="minimapWrap" class="minimap-wrap"></div>
             <div class="resize-handle-vertical" id="editorPreviewResizeHandle"></div>
