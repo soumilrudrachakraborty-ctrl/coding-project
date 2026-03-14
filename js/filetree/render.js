@@ -27,7 +27,8 @@ function createTreeNode(path) {
         if (path === currentWorkingDirectory) li.classList.add('cwd-selected');
         
         label.onclick = async (e) => { 
-            e.stopPropagation(); 
+            e.stopPropagation();
+            lastClickedTreePath = path; lastClickedTreeTime = Date.now();
             currentWorkingDirectory = path; 
             toggleFolder(path); 
             updateStatusBar(); 
@@ -54,7 +55,7 @@ function createTreeNode(path) {
     } else {
         icon.textContent = getFileIcon(path.split('/').pop());
         if (openTabs.has(path)) li.classList.add('open-file');
-        label.onclick = (e) => { e.stopPropagation(); openFile(path); };
+        label.onclick = (e) => { e.stopPropagation(); lastClickedTreePath = path; lastClickedTreeTime = Date.now(); openFile(path); };
         label.ondblclick = (e) => { e.stopPropagation(); startRenaming(path); };
     }
     li.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); closeContextMenu(); showContextMenu(path, e.pageX, e.pageY); };
