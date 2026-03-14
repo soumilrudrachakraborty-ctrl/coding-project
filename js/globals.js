@@ -20,12 +20,12 @@ let dragSrcPath = null; // currently dragged file-tree node path
 // Tab state
 let pinnedTabs = new Set(); // Set of pinned file paths
 
-const VERSION = "0.3.1";
+const VERSION = "0.3.2";
 const SESSION_STORAGE_KEY = `codeEditorSession_${VERSION}`;
 const SETTINGS_STORAGE_KEY = 'codeEditorSettings';
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const LARGE_FILE_THRESHOLD_BYTES = 1 * 1024 * 1024;
-const modeNames = { 'htmlmixed': 'HTML', 'javascript': 'JavaScript', 'python': 'Python', 'css': 'CSS', 'application/json': 'JSON', 'markdown': 'Markdown', 'text/plain': 'Plain Text', 'text/x-csrc': 'C', 'text/x-c++src': 'C++', 'text/x-java': 'Java', 'application/x-httpd-php': 'PHP', 'text/x-sql': 'SQL', 'text/x-yaml': 'YAML', 'text/x-sh': 'Shell', 'rust': 'Rust', 'go': 'Go', 'text/x-stex': 'LaTeX' };
+const modeNames = { 'htmlmixed': 'HTML', 'javascript': 'JavaScript', 'text/typescript': 'TypeScript', 'text/jsx': 'JSX', 'text/typescript-jsx': 'TSX', 'python': 'Python', 'css': 'CSS', 'application/json': 'JSON', 'markdown': 'Markdown', 'text/plain': 'Plain Text', 'text/x-csrc': 'C', 'text/x-c++src': 'C++', 'text/x-java': 'Java', 'application/x-httpd-php': 'PHP', 'text/x-sql': 'SQL', 'text/x-yaml': 'YAML', 'text/x-sh': 'Shell', 'rust': 'Rust', 'go': 'Go', 'text/x-stex': 'LaTeX' };
 
 const jsHintOptions = { 
     browser: true, 

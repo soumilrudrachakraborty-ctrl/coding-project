@@ -63,9 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     codeEditor.on('cursorActivity', updateStatusBar);
-    codeEditor.on('scroll', () => {
-        if (settings.bracketColorization) requestAnimationFrame(applyBracketColorizationToEditor);
-    });
     codeEditor.on('change', () => {
         if (settings.bracketColorization) requestAnimationFrame(applyBracketColorizationToEditor);
     });
@@ -83,6 +80,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialise minimap now that the editor and session are ready
     if (typeof initMinimap === 'function') initMinimap();
+
+    // Capture-phase listener for Ctrl+W — Edge intercepts this at browser level
+    // before the bubbling keydown fires, so we must use capture to beat it.
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'w') {
+            e.preventDefault();
+        }
+    }, true);
 
     document.addEventListener('keydown', async (e) => {
         if (e.key === 'Escape') { 
@@ -265,8 +270,11 @@ function renderCommandList() {
         const li = document.createElement('li');
         li.innerHTML = `<span>${cmd.label}</span> <span class="shortcut">${cmd.shortcut || ''}</span>`;
         if (idx === selectedCommandIndex) li.classList.add('selected');
-        li.onclick = () => executeCommand(cmd);
-        li.onmouseover = () => { selectedCommandIndex = idx; renderCommandList(); };
+        li.addEventListener('click', () => executeCommand(cmd));
+        li.addEventListener('mouseover', () => {
+            ul.querySelectorAll('li').forEach((el, i) => el.classList.toggle('selected', i === idx));
+            selectedCommandIndex = idx;
+        });
         ul.appendChild(li);
     });
 }

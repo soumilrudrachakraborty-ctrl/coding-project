@@ -4,6 +4,14 @@ function createTabElement(filePath, isUnsaved, displayName) {
     tab.dataset.filePath = filePath;
     tab.title = filePath.startsWith("untitled://") ? displayName : filePath.replace(/^root\/?/, '');
 
+    if (pinnedTabs.has(filePath)) {
+        tab.classList.add('tab-pinned');
+        const pinIcon = document.createElement('span');
+        pinIcon.className = 'tab-pin-icon';
+        pinIcon.textContent = '📌';
+        tab.appendChild(pinIcon);
+    }
+
     const textSpan = document.createElement('span');
     textSpan.className = 'tab-text';
     textSpan.textContent = displayName || filePath.split('/').pop();
@@ -39,6 +47,24 @@ function showTabContextMenu(filePath, x, y) {
     closeContextMenu();
     const menu = document.createElement('div');
     menu.className = 'context-menu';
+
+    // Pin / Unpin
+    const pinDiv = document.createElement('div');
+    pinDiv.textContent = pinnedTabs.has(filePath) ? 'Unpin Tab' : 'Pin Tab';
+    pinDiv.onclick = (e) => {
+        e.stopPropagation();
+        if (pinnedTabs.has(filePath)) { pinnedTabs.delete(filePath); } else { pinnedTabs.add(filePath); }
+        // Force tab element to be recreated so pin icon updates
+        const tabData = openTabs.get(filePath);
+        if (tabData) tabData.tabElement = null;
+        updateTabs();
+        closeContextMenu();
+    };
+    menu.appendChild(pinDiv);
+
+    const sep0 = document.createElement('div');
+    sep0.className = 'context-menu-sep';
+    menu.appendChild(sep0);
 
     // Reveal in Tree — only for real (non-untitled) files
     if (!filePath.startsWith('untitled://')) {
@@ -99,14 +125,14 @@ function showTabContextMenu(filePath, x, y) {
 async function closeOtherTabs(keepPath) {
     const paths = Array.from(openTabs.keys());
     for (let path of paths) {
-        if (path !== keepPath) await closeTab(path);
+        if (path !== keepPath && !pinnedTabs.has(path)) await closeTab(path);
     }
 }
 
 async function closeAllTabs() {
     const paths = Array.from(openTabs.keys());
     for (let path of paths) {
-        await closeTab(path);
+        if (!pinnedTabs.has(path)) await closeTab(path);
     }
 }
 
@@ -192,6 +218,11 @@ function newTab() {
 }
 
 async function closeTab(filePathToClose, forceClose = false) {
+    // Pinned tabs are protected — they must be unpinned before closing
+    if (pinnedTabs.has(filePathToClose) && !forceClose) {
+        showNotification('Unpin the tab before closing it.', false, 2500);
+        return;
+    }
     const fileData = fileStructure[filePathToClose];
     const tabData = openTabs.get(filePathToClose);
     const tabDisplayName = (fileData?.isUntitled ? fileData.displayName : filePathToClose.split('/').pop()) || "Tab";
@@ -256,13 +287,23 @@ function updateTabs() {
 
     let activeTabElement = null;
 
-    openTabs.forEach((tabData, filePath) => {
+    // Render pinned tabs first, then unpinned
+    const sortedPaths = [
+        ...Array.from(openTabs.keys()).filter(p => pinnedTabs.has(p)),
+        ...Array.from(openTabs.keys()).filter(p => !pinnedTabs.has(p)),
+    ];
+
+    sortedPaths.forEach((filePath) => {
+        const tabData = openTabs.get(filePath);
         let tab = tabData.tabElement;
         if (!tab || !document.body.contains(tab)) {
             const displayName = fileStructure[filePath]?.isUntitled ? fileStructure[filePath].displayName : filePath.split('/').pop();
             tab = createTabElement(filePath, fileStructure[filePath]?.unsaved || false, displayName);
             tabData.tabElement = tab;
         }
+
+        // Sync pinned class in case state changed
+        if (pinnedTabs.has(filePath)) { tab.classList.add('tab-pinned'); } else { tab.classList.remove('tab-pinned'); }
 
         const textSpan = tab.querySelector('.tab-text');
         let indicator = tab.querySelector('.unsaved-indicator');

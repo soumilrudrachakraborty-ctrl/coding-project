@@ -394,7 +394,7 @@ function setLanguage(filePath) {
     codeEditor.setOption('hintOptions', hintOptions);
 
     let enableLint = false; let lintOptions = true;
-    if (mode === 'javascript') { lintOptions = { options: jsHintOptions }; enableLint = true; } else if (mode === 'css' || mode === 'application/json') { enableLint = true; } else { enableLint = false; }
+    if (mode === 'javascript') { lintOptions = { options: jsHintOptions }; enableLint = true; } else if (mode === 'css' || mode === 'application/json') { lintOptions = mode === 'css' ? { options: { 'known-properties': false, 'vendor-prefix': false } } : true; enableLint = true; } else { enableLint = false; }
     codeEditor.setOption('lint', enableLint ? lintOptions : false);
 
     const gutters = ["CodeMirror-linenumbers"]; if (settings.foldGutter) gutters.push("CodeMirror-foldgutter"); if (enableLint) gutters.push("CodeMirror-lint-markers");

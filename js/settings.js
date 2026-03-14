@@ -271,54 +271,82 @@ function applyBracketColorization() {
     }
     if (enabled) {
         styleEl.textContent = `
-            .cm-bracket-depth-0 { color: #ffd700 !important; }
-            .cm-bracket-depth-1 { color: #da70d6 !important; }
-            .cm-bracket-depth-2 { color: #87ceeb !important; }
-            .cm-bracket-depth-3 { color: #ffd700 !important; }
-            .cm-bracket-depth-4 { color: #da70d6 !important; }
-            .cm-bracket-depth-5 { color: #87ceeb !important; }
+            .CodeMirror .cm-bracket-depth-0 { color: #ffd700 !important; }
+            .CodeMirror .cm-bracket-depth-1 { color: #da70d6 !important; }
+            .CodeMirror .cm-bracket-depth-2 { color: #87ceeb !important; }
+            .CodeMirror .cm-bracket-depth-3 { color: #ffd700 !important; }
+            .CodeMirror .cm-bracket-depth-4 { color: #da70d6 !important; }
+            .CodeMirror .cm-bracket-depth-5 { color: #87ceeb !important; }
+            .CodeMirror .cm-bracket-unmatched { color: #ff4444 !important; }
         `;
         if (codeEditor) requestAnimationFrame(() => applyBracketColorizationToEditor());
     } else {
         styleEl.textContent = '';
+        // Clear any existing markers
+        if (typeof _bracketMarkers !== 'undefined') {
+            for (const m of _bracketMarkers) m.clear();
+            _bracketMarkers = [];
+        }
     }
 }
 
+// Persistent markText markers for bracket colorization — cleared before each re-run
+let _bracketMarkers = [];
+
 function applyBracketColorizationToEditor() {
     if (!codeEditor || !(settings.bracketColorization ?? true)) return;
-    const OPEN = new Set(['{', '[', '(']);
+
+    for (const m of _bracketMarkers) m.clear();
+    _bracketMarkers = [];
+
+    const OPEN  = new Set(['{', '[', '(']);
     const CLOSE = new Set(['}', ']', ')']);
-    let depth = 0;
+    const MATCH = { ')': '(', ']': '[', '}': '{' };
     const totalLines = codeEditor.lineCount();
-    const scrollInfo = codeEditor.getScrollInfo();
-    const startLine = Math.max(0, codeEditor.lineAtHeight(scrollInfo.top, 'local') - 5);
-    const endLine = Math.min(totalLines - 1, codeEditor.lineAtHeight(scrollInfo.top + scrollInfo.clientHeight, 'local') + 5);
-    for (let l = 0; l < startLine; l++) {
-        const tokens = codeEditor.getLineTokens(l);
-        for (const t of tokens) {
-            if (t.type && t.type.includes('bracket')) {
-                if (OPEN.has(t.string)) depth++;
-                else if (CLOSE.has(t.string)) depth = Math.max(0, depth - 1);
+
+    // Pass 1: find all bracket positions and which are unmatched.
+    // Store as { line, ch, char } objects.
+    const allBrackets = [];
+    for (let l = 0; l < totalLines; l++) {
+        const line = codeEditor.getLine(l);
+        if (!line) continue;
+        for (let ch = 0; ch < line.length; ch++) {
+            const c = line[ch];
+            if (OPEN.has(c) || CLOSE.has(c)) allBrackets.push({ line: l, ch, char: c });
+        }
+    }
+
+    // Use a stack to find matched pairs — unmatched brackets are marked with isUnmatched.
+    const stack = []; // indices into allBrackets
+    const unmatched = new Set();
+    for (let i = 0; i < allBrackets.length; i++) {
+        const b = allBrackets[i];
+        if (OPEN.has(b.char)) {
+            stack.push(i);
+        } else {
+            const top = stack.length > 0 ? allBrackets[stack[stack.length - 1]] : null;
+            if (top && MATCH[b.char] === top.char) {
+                stack.pop(); // matched pair
+            } else {
+                unmatched.add(i); // mismatched or excess close
             }
         }
     }
-    for (let l = startLine; l <= endLine; l++) {
-        const tokens = codeEditor.getLineTokens(l);
-        for (const t of tokens) {
-            if (!t.type || !t.type.includes('bracket')) continue;
-            if (CLOSE.has(t.string)) depth = Math.max(0, depth - 1);
-            const d = depth % 6;
-            const coord = codeEditor.charCoords({ line: l, ch: t.start }, 'local');
-            const el = document.elementFromPoint(
-                codeEditor.getWrapperElement().getBoundingClientRect().left + coord.left + 1,
-                codeEditor.getWrapperElement().getBoundingClientRect().top + coord.top + 1
-            );
-            if (el && el.classList) {
-                for (let i = 0; i < 6; i++) el.classList.remove(`cm-bracket-depth-${i}`);
-                el.classList.add(`cm-bracket-depth-${d}`);
-            }
-            if (OPEN.has(t.string)) depth++;
-        }
+    // Anything left on the stack is an unmatched open
+    for (const i of stack) unmatched.add(i);
+
+    // Pass 2: assign colors. Walk again tracking depth, skip unmatched.
+    let depth = 0;
+    for (let i = 0; i < allBrackets.length; i++) {
+        const { line, ch, char } = allBrackets[i];
+        if (CLOSE.has(char) && !unmatched.has(i)) depth = Math.max(0, depth - 1);
+        const cls = unmatched.has(i) ? 'cm-bracket-unmatched' : `cm-bracket-depth-${depth % 6}`;
+        _bracketMarkers.push(codeEditor.markText(
+            { line, ch },
+            { line, ch: ch + 1 },
+            { className: cls }
+        ));
+        if (OPEN.has(char) && !unmatched.has(i)) depth++;
     }
 }
 
