@@ -1,3 +1,5 @@
+// Ignore this script, bad things happened here.
+
 /* This script doesn't currently do anything because the universe seems to have a profound dislike of markdown tables. The next comment is flat-out wrong. */
 
 /* Hey looks like tables work now, but this script is still useless. It's too iconic to delete. The previous comment referred to the comment after this comment. */
