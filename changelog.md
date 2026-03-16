@@ -1,5 +1,18 @@
 *(repo might not be updated as fast as the changelog; as such the changes here might not be there yet)*
 
+# Changes in v0.3.3
+
+## Bugfixes
+- soon
+
+## Improvements
+- soon
+
+## Additions
+- soon
+
+---
+
 # Changes in v0.3.2
 
 ## Bugfixes
