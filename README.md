@@ -2,6 +2,8 @@
 
 CodeEdit is a fully open-source, portable, persistent, and lightweight code editor built mainly in JS that runs entirely within your web browser.
 
+The ambitious goal of this editor is to eventually make the user question not what they can do, but what they cannot do; a question I eventually seek to answer with, 'nothing.'
+
 ## ⚠️ Warning
 **For the stable versions, see releases. Repo code is the current WIP version and might be broken.**
 
@@ -36,6 +38,26 @@ CodeEdit is a fully open-source, portable, persistent, and lightweight code edit
 *   **Copy Contents**: Available in the `···` overflow menu — copies the full contents of the current file to the clipboard.
 *   **Save All**: Available in the `···` overflow menu or via `Ctrl+Shift+S` — saves every open file with unsaved changes at once.
 *   **Minimap**: A canvas-based minimap sits to the right of the editor. Click anywhere on it to jump to that position, or drag the viewport band to scroll.
+
+## 🔧 Settings
+There are many settings. Here's a list of them with a short description explaining what they do:
+### Editor
+- **Auto-Close Tags**: automatically closes tags
+- **Match Brackets**: highlights the other bracket if you hover over its pair
+- **Auto-Close Brackets**: automatically closes brackets
+- **Bracket Pair Colorization**: colorizes bracket pairs, with alternating colors for each nested pair
+- **Active Line Highlight**: highlights the current selected line
+- **Word Wrap**: if the code goes off-screen, enabling this would wrap it to the next line but still treat it as one line
+- **File Templates on New Files**: start your new files with prebuilt templates for that specific coding language
+- **Delete Key Window (ms)**: after clicking a file or folder in the tree, the time the editor should wait till the delete key no longer triggers deletion
+### Session
+- **Auto Save/Load Session**: Automatically saves and loads sessions to and from the browser
+- **Auto-Save on Focus Loss**: Automatically saves session if window loses focus
+- **Timed Auto-Save**: Automatically saves periodically
+- **Save interval (s)**: The time interval the editor waits between each autosave
+### Appearance
+- **Theme**: Customizable color theme
+- **Tab Width**: The number of spaces a `tab` press generates
 
 ## 🎨 Appearance & Themes
 *   **Theme**: Choose from five editor themes in Settings — **Dark (Monokai)**, **Dracula**, **Solarized Dark**, **Solarized Light**, and **Light**. Each theme has a unique feel.
