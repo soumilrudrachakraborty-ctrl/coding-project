@@ -12,6 +12,10 @@ function closeToolbarMenu() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Abort gracefully if CodeMirror itself failed to load from CDN.
+    // vendor-fallbacks.js will have replaced the page with an error message.
+    if (typeof CodeMirror === 'undefined') return;
+
     initWorkers();
 
     document.title = `CodeEdit v${VERSION}`;
