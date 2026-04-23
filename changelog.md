@@ -5,6 +5,7 @@
 ## Bugfixes
 - Fixed an image rendering issue
 - Fixed the diff view
+- Fixed the letter 'e' not being highlighted consistently in diff view.
 
 ## Improvements
 - Pinned tabs are now saved to session data
