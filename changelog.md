@@ -6,6 +6,7 @@
 - Fixed an image rendering issue
 - Fixed the diff view
 - Fixed the letter 'e' not being highlighted consistently in diff view.
+- Fixed the close button not working in global search results
 
 ## Improvements
 - Pinned tabs are now saved to session data
