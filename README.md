@@ -27,8 +27,10 @@ The ambitious goal of this editor is to eventually make the user question not wh
     *   Use `Ctrl+Tab` / `Ctrl+Shift+Tab` to cycle between open tabs.
 *   **Local Search & Replace**: Press `Ctrl+F` (Find) or `Ctrl+H` (Replace) to open the floating widget in the top-right of the editor.
     *   Click the **Aa** button (or press `Alt+C` while the widget is open) to toggle **case-sensitive** matching.
+    *   Click the **.\*** button to toggle RegEx mode 
     *   Search matches are annotated as yellow tick marks on the scrollbar so you can see their distribution across the whole file at a glance.
 *   **Global Search & Replace**: Use the top header input fields to search across **every file in your project**. Click **Replace All** to perform a project-wide replacement.
+*   **Symbol Outline Palette**:  Scans the current file and presents a searchable jump list of symbols
 *   **Breadcrumb**: Beneath the tabs is the full filepath to the current file. Click the filename to copy the path to your clipboard. Folder segments are clickable and update the current working directory.
 *   **Go to Line / Column**: Press `Ctrl+G` (or click the `Ln/Col` indicator in the status bar) to jump to a specific line. Enter a line number (e.g. `42`) or a `line:column` pair (e.g. `42:10`).
 *   **Formatting**: Use the **Format** button or `Ctrl+Shift+F` to automatically clean up your code using Prettier. Supported languages include JS, TS, JSX, TSX, CSS, HTML, JSON, Markdown, and GraphQL.
@@ -51,7 +53,7 @@ There are many settings. Here's a list of them with a short description explaini
 - **Code Folding**: whether or not code should be foldable
 - **Word Wrap**: if the code goes off-screen, enabling this would wrap it to the next line but still treat it as one line
 - **File Templates on New Files**: start your new files with prebuilt templates for that specific coding language
-- **Delete Key Window (ms)**: after clicking a file or folder in the tree, the time the editor should wait till the delete key no longer triggers deletion
+- **Delete Key Window (ms)**: the time the editor should wait till the delete key no longer triggers deletion after clicking a file or folder in the tree
 ### Session
 - **Auto Save/Load Session**: Automatically saves and loads sessions to and from the browser
 - **Auto-Save on Focus Loss**: Automatically saves session if window loses focus
