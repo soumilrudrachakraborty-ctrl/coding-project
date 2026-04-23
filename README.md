@@ -75,10 +75,12 @@ Can't remember a shortcut?
 
 ## 👁️ Preview Mode
 Click the **Preview** button to enable the split-pane preview.
+### Supported Files:
 *   **Markdown**: Automatically renders headers, formatting, blockquotes, tables, and code blocks.
 *   **HTML**: Renders the raw HTML content in real-time. (Linked external CSS/JS files are not resolved.)
 *   **LaTeX**: `.tex` and `.bib` files render a live KaTeX preview. Math, sections, lists, and common environments are supported.
 *   **CSV and XLSX**: These render as simple tables with filter functionality.
+*   **SVG**: Renders the image. (This also means you have a live SVG editor, sweet!)
 
 ## 🛠️ Workspace Isolation
 Because CodeEdit persists your work in your browser's database, you may want to separate different projects. To do this:
