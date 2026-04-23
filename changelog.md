@@ -23,6 +23,7 @@
 - Extended LaTeX file template to cover `.latex` and `.ltx`; template title now strips all three LaTeX extensions
 - Replaced the three separate file-upload extension allowlists (directory upload, single file upload, drag-and-drop) with a shared denylist approach: `DATAURL_EXTENSIONS` and `BINARY_EXTENSIONS` sets defined once in `fileOps.js`, consumed via `getFileReadMode()`` from all three upload paths; unknown text-based formats now open correctly without requiring any code changes
 - SVGs are now previewable
+- Changes made so that the editor scrollbar should now match active theme (but it doesn't; bugfix pending)
 
 ## Additions
 - CDN failure resilience — added `js/vendor-fallbacks.js`, which loads before all CDN scripts and provides graceful degradation for every optional library:
