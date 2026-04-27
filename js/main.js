@@ -1,3 +1,4 @@
+
 function toggleToolbarMenu(e) {
     e.stopPropagation();
     const menu = document.getElementById('toolbarOverflowMenu');
@@ -262,66 +263,133 @@ document.addEventListener('DOMContentLoaded', async () => {
     dropZone.addEventListener('drop', async (e) => {
         // Internal tree drags are handled entirely by dragDrop.js.
         // dragSrcPath is set for the duration of any internal drag, so
-        // bailing here prevents the external-file handler from running
-        // (and announcing "Done — 0 item(s) dropped.") on those drops.
+        // bailing here prevents the external-file handler from running.
         if (dragSrcPath) return;
-        e.preventDefault(); dropZone.style.outline = ''; dropZone.style.outlineOffset = '';
-        const items = e.dataTransfer.items;
-        if (items) {
-            showNotification('Processing dropped items...', false, 3000);
-            let filesProcessed = 0; const processQueue = [];
-            const targetDropElement = e.target.closest('li[data-path]');
-            let baseDropPath = currentWorkingDirectory || 'root';
-            if (targetDropElement) {
-                const potentialDropPath = targetDropElement.dataset.path;
-                if (fileStructure[potentialDropPath]) {
-                    baseDropPath = fileStructure[potentialDropPath].type === 'folder' ? potentialDropPath : (potentialDropPath.substring(0, potentialDropPath.lastIndexOf('/')) || 'root');
-                }
-            }
+        
+        e.preventDefault(); 
+        dropZone.style.outline = ''; 
+        dropZone.style.outlineOffset = '';
 
-            async function processEntry(entry, currentPathInZip) {
-                return new Promise(async (resolveEntry, rejectEntry) => {
-                    if (entry.isFile) {
-                        entry.file(async (file) => {
+        const items = e.dataTransfer.items;
+        if (!items || items.length === 0) return;
+
+        showNotification('Processing dropped items...', false, 3000);
+        let filesProcessed = 0; 
+        const processQueue = [];
+        
+        const targetDropElement = e.target.closest('li[data-path]');
+        let baseDropPath = currentWorkingDirectory || 'root';
+        if (targetDropElement) {
+            const potentialDropPath = targetDropElement.dataset.path;
+            if (fileStructure[potentialDropPath]) {
+                baseDropPath = fileStructure[potentialDropPath].type === 'folder' 
+                    ? potentialDropPath 
+                    : (potentialDropPath.substring(0, potentialDropPath.lastIndexOf('/')) || 'root');
+            }
+        }
+
+        const processEntry = (entry, currentPathInZip) => {
+            return new Promise((resolveEntry) => {
+                if (entry.isFile) {
+                    entry.file((file) => {
+                        if (file.size > MAX_FILE_SIZE_BYTES) {
+                            createFile(`${baseDropPath}/${currentPathInZip}`, `[File too large: ${file.name}]`, false); 
+                            filesProcessed++; resolveEntry(); return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const fullPath = `${baseDropPath}/${currentPathInZip}`;
+                            if (!fileStructure[fullPath] || fileStructure[fullPath].isUntitled) {
+                                createFile(fullPath, event.target.result, false);
+                            }
+                            filesProcessed++; resolveEntry();
+                        };
+                        reader.onerror = () => { filesProcessed++; resolveEntry(); };
+                        
+                        const readMode = getFileReadMode(file.name);
+                        if (readMode === 'dataurl') reader.readAsDataURL(file);
+                        else if (readMode === 'text') reader.readAsText(file);
+                        else { 
+                            createFile(`${baseDropPath}/${currentPathInZip}`, `[Binary file: ${file.name}]`, false); 
+                            filesProcessed++; resolveEntry(); 
+                        }
+                    }, () => { filesProcessed++; resolveEntry(); });
+                } else if (entry.isDirectory) {
+                    if (SKIP_DIRS.has(entry.name)) { filesProcessed++; resolveEntry(); return; }
+                    const dirPathInStructure = `${baseDropPath}/${currentPathInZip}`;
+                    if (!fileStructure[dirPathInStructure]) createFolder(dirPathInStructure, true);
+                    else fileStructure[dirPathInStructure].expanded = true;
+                    
+                    const dirReader = entry.createReader(); 
+                    const allEntries = [];
+                    const readEntriesRecursive = () => new Promise((res) => {
+                        dirReader.readEntries(chunks => {
+                            if (chunks.length) {
+                                allEntries.push(...chunks);
+                                readEntriesRecursive().then(res);
+                            } else {
+                                res();
+                            }
+                        }, () => res());
+                    });
+                    
+                    readEntriesRecursive().then(async () => {
+                        for (const subEntry of allEntries) {
+                            await processEntry(subEntry, `${currentPathInZip}/${subEntry.name}`);
+                        }
+                        filesProcessed++; resolveEntry();
+                    });
+                } else { 
+                    filesProcessed++; resolveEntry(); 
+                }
+            });
+        };
+
+        // Extract entries synchronously to avoid DataTransferItemList detachment issues
+        const entries = [];
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.kind === 'file') {
+                const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                if (entry) {
+                    entries.push(entry);
+                } else {
+                    // Fallback for environments lacking webkitGetAsEntry
+                    const file = item.getAsFile();
+                    if (file) {
+                        processQueue.push(new Promise((resolve) => {
                             if (file.size > MAX_FILE_SIZE_BYTES) {
-                                createFile(`${baseDropPath}/${currentPathInZip}`, `[File too large: ${file.name}]`, false); filesProcessed++; resolveEntry(); return;
+                                createFile(`${baseDropPath}/${file.name}`, `[File too large: ${file.name}]`, false);
+                                filesProcessed++; resolve(); return;
                             }
                             const reader = new FileReader();
                             reader.onload = (event) => {
-                                const fullPath = `${baseDropPath}/${currentPathInZip}`;
-                                if (fileStructure[fullPath] && !fileStructure[fullPath].isUntitled) {
-                                    // Notice suppressed, covered by final total
-                                } else {
+                                const fullPath = `${baseDropPath}/${file.name}`;
+                                if (!fileStructure[fullPath] || fileStructure[fullPath].isUntitled) {
                                     createFile(fullPath, event.target.result, false);
                                 }
-                                filesProcessed++; resolveEntry();
+                                filesProcessed++; resolve();
                             };
-                            reader.onerror = () => { filesProcessed++; rejectEntry(); };
+                            reader.onerror = () => { filesProcessed++; resolve(); };
                             const readMode = getFileReadMode(file.name);
                             if (readMode === 'dataurl') reader.readAsDataURL(file);
                             else if (readMode === 'text') reader.readAsText(file);
-                            else { createFile(`${baseDropPath}/${currentPathInZip}`, `[Binary file: ${file.name}]`, false); filesProcessed++; resolveEntry(); }
-                        }, (err) => { filesProcessed++; rejectEntry(err); });
-                    } else if (entry.isDirectory) {
-                        if (SKIP_DIRS.has(entry.name)) { filesProcessed++; resolveEntry(); return; }
-                        const dirPathInStructure = `${baseDropPath}/${currentPathInZip}`;
-                        if (!fileStructure[dirPathInStructure]) createFolder(dirPathInStructure, true);
-                        else fileStructure[dirPathInStructure].expanded = true;
-                        const dirReader = entry.createReader(); let allEntries = [];
-                        const readEntriesRecursive = async () => new Promise((res, rej) => dirReader.readEntries(async chunks => chunks.length ? allEntries.push(...chunks) && await readEntriesRecursive().then(res).catch(rej) : res(), rej));
-                        try {
-                            await readEntriesRecursive();
-                            for (const subEntry of allEntries) await processEntry(subEntry, `${currentPathInZip}/${subEntry.name}`);
-                            filesProcessed++; resolveEntry();
-                        } catch (err) { filesProcessed++; rejectEntry(err); }
-                    } else { filesProcessed++; resolveEntry(); }
-                });
+                            else { createFile(`${baseDropPath}/${file.name}`, `[Binary file: ${file.name}]`, false); filesProcessed++; resolve(); }
+                        }));
+                    }
+                }
             }
-            for (const item of items) if (item.kind === 'file') { const entry = item.webkitGetAsEntry(); if (entry) processQueue.push(processEntry(entry, entry.name)); }
-            await Promise.allSettled(processQueue);
-            renderFileTree(); updateStatusBar(); if (settings.autoSaveSession) saveSession();
-            showNotification(`Done — ${filesProcessed} item(s) dropped.`, false, 4000);
         }
+
+        for (const entry of entries) {
+            processQueue.push(processEntry(entry, entry.name));
+        }
+
+        await Promise.allSettled(processQueue);
+        renderFileTree(); 
+        updateStatusBar(); 
+        if (settings.autoSaveSession) saveSession();
+        showNotification(`Done — ${filesProcessed} item(s) dropped.`, false, 4000);
     });
     
     initCommandPalette();
